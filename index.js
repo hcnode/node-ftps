@@ -55,6 +55,7 @@ FTP.prototype.exec = function (cmds, callback) {
 	var cmd = '';
 	cmd += 'open -u "'+ escapeshell(this.options.username) + '","' + escapeshell(this.options.password) + '" "' + this.options.host + '";';
 	cmd += this.cmds.join(';');
+	var cmdsForCallBack = this.cmds.join(';');
 	this.cmds = [];
 
 	var lftp = spawn('lftp', ['-c', cmd]);
@@ -68,12 +69,12 @@ FTP.prototype.exec = function (cmds, callback) {
 	});
 	lftp.on('error', function ( err ) {
 		if (callback)
-			callback(err, { error: error || null, data: data, cmd : cmd });
+			callback(err, { error: error || null, data: data, cmd : cmdsForCallBack });
 		callback = null; // Make sure callback is only called once, whether 'exit' event is triggered or not.
 	});
 	lftp.on('exit', function (code) {
 		if (callback)
-			callback(null, { error: error || null, data: data, cmd : cmd });
+			callback(null, { error: error || null, data: data, cmd : cmdsForCallBack });
 	});
 	return lftp;
 };
